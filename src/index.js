@@ -56,9 +56,9 @@ const Ship = () => {
 
   //Math.sin(clock.elapsedTime) 
   useFrame((state) => {
-    //rot.current.position.z -= 0.001;
+    rot.current.position.z -= 0.015;
     
-    //state.camera.position.lerp(dummy.set(0,0,0), 0.001)
+    state.camera.position.lerp(dummy.set(0,0,0), 0.001)
   })
 
   const { viewport } = useThree()
@@ -81,8 +81,6 @@ const Ship = () => {
 
 let prevX = 0;
 let prevY = 0;
-let changeX;
-let changeY;
 
 function Dodecahedron() {
   const { viewport } = useThree()
@@ -94,11 +92,9 @@ function Dodecahedron() {
   useFrame(({ mouse }) => {
     const x = (mouse.x * viewport.width) / 100;
     const y = (mouse.y * viewport.height) / 100;
-    if (x == prevX) changeX = x*2;
-    if (y == prevY) changeY = y*2;
     // Besides testing, how am I supposed to know which positional argument is position vs point?
-    ref.current.position.set(prevX, changeY, 0)
-    ref.current.rotation.set(changeY, -prevX, 0)
+    ref.current.position.set(x, y, 0)
+    ref.current.rotation.set(y, -x, 0)
   })
 
 
