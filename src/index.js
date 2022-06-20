@@ -39,7 +39,7 @@ function SkyBox() {
 const Scene = () => {
   const gltf = useLoader(GLTFLoader, "./scene.gltf");
 
-  return <primitive object={gltf.scene} scale={1} />;
+  return <primitive object={gltf.scene} scale={8} />;
 };
 
 const Ship = () => {
@@ -52,7 +52,9 @@ const Ship = () => {
 
   const fbx = useLoader(FBXLoader, "./X-Wing.fbx");
 
-
+  useFrame(({ clock }) => {
+    rot.current.position.z = Math.sin(clock.elapsedTime) * 5
+  })
 
   const { viewport } = useThree()
 
@@ -63,7 +65,7 @@ const Ship = () => {
       scale={active ? 1.5 : 1}
       onClick={() => setActive(!active)}
       onPointerUp={(e) => console.log('up')}
-      position={[0,0,0]}
+      position={[0, 0, 10]}
       rotation={[0, Math.PI, 0]}
     >
       <primitive object={fbx} scale={0.0005} />
@@ -79,14 +81,15 @@ function Dodecahedron() {
   useFrame(({ mouse }) => {
     const x = (mouse.x * viewport.width) / 10
     const y = (mouse.y * viewport.height) / 10
+    // Besides testing, how am I supposed to know which positional argument is position vs point?
     ref.current.position.set(x, y, 0)
-    ref.current.rotation.set(-y, x, 0)
+    ref.current.rotation.set(y, -x, 0)
   })
-  
+
 
   return (
     <mesh ref={ref}>
-      <Ship/>
+      <Ship />
     </mesh>
   )
 }
@@ -106,7 +109,7 @@ function App() {
 
           <SkyBox />
           <OrbitControls />
-          <Dodecahedron/>
+          <Dodecahedron />
         </Suspense>
       </Canvas>
     </div >
