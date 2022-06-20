@@ -2,12 +2,13 @@ import ReactDOM from 'react-dom'
 import { useState, useRef } from 'react';
 import { Canvas, useThree } from "@react-three/fiber";
 import { useLoader } from "@react-three/fiber";
-import { Environment, OrbitControls } from "@react-three/drei";
+import { CubeCamera, Environment, OrbitControls } from "@react-three/drei";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { Suspense } from "react";
 
 import {
   CubeTextureLoader,
+  Vector3,
 } from "three";
 
 import { FlyControls, PerspectiveCamera } from '@react-three/drei';
@@ -41,6 +42,7 @@ const Scene = () => {
 
   return <primitive object={gltf.scene} scale={8} />;
 };
+const dummy = new Vector3()
 
 const Ship = () => {
 
@@ -52,38 +54,51 @@ const Ship = () => {
 
   const fbx = useLoader(FBXLoader, "./X-Wing.fbx");
 
-  useFrame(({ clock }) => {
-    rot.current.position.z = Math.sin(clock.elapsedTime) * 5
+  //Math.sin(clock.elapsedTime) 
+  useFrame((state) => {
+    //rot.current.position.z -= 0.001;
+    
+    //state.camera.position.lerp(dummy.set(0,0,0), 0.001)
   })
 
   const { viewport } = useThree()
 
 
+ 
+
   return (
-    <mesh
-      ref={rot}
-      scale={active ? 1.5 : 1}
-      onClick={() => setActive(!active)}
-      onPointerUp={(e) => console.log('up')}
-      position={[0, 0, 10]}
-      rotation={[0, Math.PI, 0]}
-    >
-      <primitive object={fbx} scale={0.0005} />
-    </mesh>
+      <mesh
+        ref={rot}
+        scale={active ? 1.5 : 1}
+        onClick={() => setActive(!active)}
+        position={[0, 0, 15]}
+        rotation={[0, Math.PI, 0]}
+      >
+        <primitive object={fbx} scale={0.0005} />
+      </mesh>
   );
 };
+
+let prevX = 0;
+let prevY = 0;
+let changeX;
+let changeY;
 
 function Dodecahedron() {
   const { viewport } = useThree()
   // viewport = canvas in 3d units (meters)
 
   const ref = useRef()
+
+  
   useFrame(({ mouse }) => {
-    const x = (mouse.x * viewport.width) / 10
-    const y = (mouse.y * viewport.height) / 10
+    const x = (mouse.x * viewport.width) / 100;
+    const y = (mouse.y * viewport.height) / 100;
+    if (x == prevX) changeX = x*2;
+    if (y == prevY) changeY = y*2;
     // Besides testing, how am I supposed to know which positional argument is position vs point?
-    ref.current.position.set(x, y, 0)
-    ref.current.rotation.set(y, -x, 0)
+    ref.current.position.set(prevX, changeY, 0)
+    ref.current.rotation.set(changeY, -prevX, 0)
   })
 
 
@@ -101,14 +116,15 @@ function App() {
 
   return (
     <div style={{ height: '100vh' }}>
-      <Canvas>
+      <Canvas camera={{ fov: 75, position: [0, 0, 16]}}>
         <directionalLight position={[10, 10, 5]} intensity={2} />
         <directionalLight position={[-10, -10, -5]} intensity={1} />
         <Suspense fallback={null}>
+
           <Scene />
 
           <SkyBox />
-          <OrbitControls />
+
           <Dodecahedron />
         </Suspense>
       </Canvas>
